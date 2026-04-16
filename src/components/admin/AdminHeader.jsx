@@ -1,6 +1,7 @@
 import logo from "../../assets/local_connect_logo.png";
 import { FaBell, FaSearch, FaUserCircle } from "react-icons/fa";
 import UserDropdown from "./UserDropdown";
+import NotificationBell from "./NotificationBell";
 const AdminHeader = () => {
   return (
     <>
@@ -20,7 +21,7 @@ const AdminHeader = () => {
         </div>
         {/* actions area */}
         <div className="flex items-center gap-10">
-          <FaBell className=" text-2xl text-white" />
+          <NotificationBell />
           <UserDropdown />
         </div>
       </header>

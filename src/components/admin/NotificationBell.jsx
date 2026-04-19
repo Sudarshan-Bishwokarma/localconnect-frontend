@@ -12,7 +12,7 @@ const NotificationBell = () => {
   return (
     <div className="relative">
       <button onClick={toggleNotifications}>
-        <FaBell className="text-2xl text-white cursor-pointer" />
+        <FaBell className="text-2xl text-gray-700 cursor-pointer" />
       </button>
       {/* drop down */}
       {showNotification && (
@@ -26,7 +26,7 @@ const NotificationBell = () => {
               notification.map((note, index) => (
                 <li
                   key={index}
-                  className="px-4 py-2 cursor-pointer hover:bg-gray=200"
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-200"
                 >
                   {note}
                 </li>

@@ -11,7 +11,7 @@ const UserDropdown = () => {
     <div className="relative">
       {/* User Icon*/}
       <button onClick={toggleDropDown}>
-        <FaUserCircle className="text-2xl cursor-pointer text-white " />
+        <FaUserCircle className="text-2xl cursor-pointer text-gray-700 " />
       </button>
       {/*  drop down */}
       {open && (

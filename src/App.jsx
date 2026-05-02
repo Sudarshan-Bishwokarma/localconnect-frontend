@@ -5,6 +5,7 @@ import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import SignUp from "./pages/auth/SignUp";
 import { Toaster } from "react-hot-toast";
+import Login from "./pages/auth/Login";
 function App() {
   return (
     <BrowserRouter>
@@ -16,6 +17,7 @@ function App() {
         </Route>
         {/*    auth routes*/}
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );

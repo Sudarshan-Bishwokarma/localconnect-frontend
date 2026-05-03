@@ -26,6 +26,11 @@ const SignUp = () => {
       ...prev,
       [name]: value,
     }));
+    //  remove error for that field
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
   // handle  file change
   const handleFileChange = (e) => {
@@ -64,7 +69,6 @@ const SignUp = () => {
     const validateErrors = validate();
     setErrors(validateErrors);
     if (Object.keys(validateErrors).length > 0) return;
-    const email = user.email;
 
     try {
       setLoading(true);
@@ -77,9 +81,9 @@ const SignUp = () => {
         body: formData,
       });
       const result = await response.json();
-      console.log("Server Response:", result);
+
       if (response.ok) {
-        toast.success(result.message || "OTP sent successfully");
+        toast.success(result.message);
 
         // reset form
         setUser({
@@ -141,7 +145,7 @@ const SignUp = () => {
               className="border p-2 w-full rounded"
             />
             <span
-              onClick={() => showConfirmPassword(!showConfirmPassword)}
+              onClick={() => setShowpassword(!showPassword)}
               className="absolute  right-3 top-2.5 cursor-pointer text-black"
             >
               {showPassword ? <FaRegEyeSlash /> : <FaEye />}
@@ -160,10 +164,10 @@ const SignUp = () => {
               className="border p-2 w-full rounded"
             />
             <span
-              onClick={() => setShowpassword(!showPassword)}
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3 top-2.5 cursor-pointer text-black"
             >
-              {showPassword ? <FaRegEyeSlash /> : <FaEye />}
+              {showConfirmPassword ? <FaRegEyeSlash /> : <FaEye />}
             </span>
           </div>
           {errors.confirmPassword && (

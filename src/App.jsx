@@ -6,6 +6,7 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 import SignUp from "./pages/auth/SignUp";
 import { Toaster } from "react-hot-toast";
 import Login from "./pages/auth/Login";
+import OtpVerify from "./pages/auth/OtpVerify";
 function App() {
   return (
     <BrowserRouter>
@@ -18,6 +19,7 @@ function App() {
         {/*    auth routes*/}
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/otp-verify" element={<OtpVerify />} />
       </Routes>
     </BrowserRouter>
   );

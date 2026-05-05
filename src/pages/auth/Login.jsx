@@ -63,7 +63,12 @@ const Login = () => {
         localStorage.setItem("token", result.data.token);
         localStorage.setItem("role", result.data.role);
         toast.success(result.message);
-
+        const role = result.data.role;
+        if (role == "ROLE_ADMIN") {
+          navigate("/admin");
+        } else {
+          navigate("/home");
+        }
         // reset Form
         setUser({
           email: "",
@@ -71,11 +76,13 @@ const Login = () => {
         });
         setErrors({});
       } else {
-        const code = result.data?.code;
+        const code = result?.data?.code;
         if (code == "INVALID_CREDENTIALS") {
           toast.error("Invalid email or password");
         } else if (code == "NOT_VERIFIED") {
           toast.error("Yor are not  verified yet.");
+          localStorage.setItem("otpEmail", email);
+          navigate("/otp-verify", { state: { email } });
         } else {
           toast.error(result.message || "Login Failed");
         }
@@ -93,7 +100,7 @@ const Login = () => {
         <h1 className="text-2xl text-center font-bold mb-5">Login Here</h1>
         <form className=" flex  flex-col gap-6 " onSubmit={handleSubmit}>
           <input
-            type="text"
+            type="email"
             name="email"
             value={user.email}
             onChange={handleChange}

@@ -80,28 +80,31 @@ const SignUp = () => {
         method: "POST",
         body: formData,
       });
-      const result = await response.json();
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        result = { message: "Something went wrong" };
+      }
 
       if (response.ok) {
         toast.success(result.message);
+        localStorage.setItem("otpEmail", user.email);
+        navigate("/otp-verify", {
+          state: { email: user.email },
+        });
 
         // reset form
-        setUser({
-          name: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          city: "",
-          number: "",
-        });
-        setFile(null);
-        if (fileRef.current) {
-          // fileRef.current → gives access to that input
-          fileRef.current.value = "";
-        }
-        setErrors({});
       } else {
-        toast.error(result.message || "SignUp Failed");
+        const code = result?.data?.code;
+        if (code == "USER_ALREADY_EXISTS") {
+          toast.error("User Already exists.");
+          console.log(" User already exists.");
+          navigate("/login");
+        } else {
+          toast.error(result.message || "Signup failed");
+          console.log(" SignUp Failed.");
+        }
       }
     } catch (error) {
       console.log(error);

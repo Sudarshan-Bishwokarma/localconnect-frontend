@@ -20,7 +20,7 @@ const UserNotificationBell = () => {
       </button>
 
       {showNotification && (
-        <div className="absolute right-0 w-[170px] rounded mt-3 bg-white text-black">
+        <div className="absolute right-0 w-[170px] rounded mt-3 bg-white text-black shadow-lg">
           <ul>
             {notification.length === 0 ? (
               <li className="px-4 py-2 hover:bg-gray-200  cursor-pointer">

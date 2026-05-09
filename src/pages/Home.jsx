@@ -1,4 +1,10 @@
+import UserHeader from "../components/user/UserHeader";
+
 const Home = () => {
-  return <h1 className="text-center">Home Page</h1>;
+  return (
+    <div>
+      <UserHeader />
+    </div>
+  );
 };
 export default Home;

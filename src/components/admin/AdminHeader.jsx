@@ -1,4 +1,4 @@
-import logo from "../../assets/local_connect_logo.png";
+import logo from "../../assets/Final_Logo.png";
 import { FaBell, FaSearch, FaUserCircle } from "react-icons/fa";
 import UserDropdown from "./UserDropdown";
 import NotificationBell from "./NotificationBell";

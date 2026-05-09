@@ -27,19 +27,10 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
         </Route>
         {/* public  routes*/}
+        <Route path="/home" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/otp-verify" element={<OtpVerify />} />
-
-        {/*User Routes */}
-        <Route
-          path="/user"
-          element={
-            <ProtectedRoute allowedRoles={["ROLE_USER", "ROLE_ADMIN"]}>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
       </Routes>
     </BrowserRouter>
   );

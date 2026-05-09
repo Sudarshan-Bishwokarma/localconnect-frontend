@@ -7,15 +7,24 @@ const UserHeader = () => {
   return (
     <header className="flex  items-center justify-between h-[100px]  w-full bg-white text-gray-700 px-5  shadow-sm ">
       {/*logo*/}
-      <div className="h-[80px] w-[120px]">
+      <div className="h-[70px] w-[150px]">
         <img src={logo} alt="logo" className="h-full w-full object-cover" />
       </div>
       {/*links */}
       <div>
-        <div className=" flex items-center gap-15  text-2xl text-black  cursor-pointer ">
-          <Link to="/orders">My Orders</Link>
-          <Link to="/signup">SignUp</Link>
-          <Link to="/login">Login</Link>
+        <div className=" flex items-center gap-15  text-2xl text-black  cursor-pointer">
+          <Link to="/explore-nepal" className="hover:text-blue-600 transition">
+            Explore Nepal
+          </Link>
+          <Link to="/orders" className="hover:text-blue-600 transition">
+            My Orders
+          </Link>
+          <Link to="/signup" className="hover:text-blue-600 transition">
+            SignUp
+          </Link>
+          <Link to="/login" className="hover:text-blue-600 transition">
+            Login
+          </Link>
         </div>
       </div>
       {/*search section */}

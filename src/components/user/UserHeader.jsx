@@ -5,14 +5,14 @@ import DropDown from "./DropDown";
 import { Link } from "react-router-dom";
 const UserHeader = () => {
   return (
-    <header className="flex  items-center justify-between h-[100px]  w-full bg-white text-gray-700 px-5  shadow-sm ">
+    <header className=" sticky top-0 flex  items-center justify-between h-[95px]  w-full   z-50 bg-white text-gray-700 px-5  shadow-sm ">
       {/*logo*/}
       <div className="h-[70px] w-[150px]">
         <img src={logo} alt="logo" className="h-full w-full object-cover" />
       </div>
       {/*links */}
       <div>
-        <div className=" flex items-center gap-15  text-2xl text-black  cursor-pointer">
+        <div className=" flex items-center gap-10 text-[19px] font-medium  text-gray-700  cursor-pointer">
           <Link to="/explore-nepal" className="hover:text-blue-600 transition">
             Explore Nepal
           </Link>
@@ -28,10 +28,10 @@ const UserHeader = () => {
         </div>
       </div>
       {/*search section */}
-      <div className=" flex  items-center h-[50px] w-[300px] bg-white border-2 border-black rounded px-2">
+      <div className=" flex  items-center h-[50px] w-[300px] bg-white border-2 border-black rounded-full px-2">
         <input
           type="text"
-          placeholder="Search here......."
+          placeholder="Search products here......."
           className=" flex-1 bg-transparent outline-none"
         />
         <FaSearch className="text-2xl text-gray-600" />
@@ -39,7 +39,7 @@ const UserHeader = () => {
       {/*actions area */}
       <div className="flex items-center gap-10 mx-5">
         <Link to="/cart">
-          <FaShoppingCart className="text-black text-2xl" />
+          <FaShoppingCart className="text-gray-700 text-2xl " />
         </Link>
         <UserNotificationBell />
         <DropDown />

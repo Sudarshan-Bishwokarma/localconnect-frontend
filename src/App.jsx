@@ -9,6 +9,7 @@ import Login from "./pages/auth/Login";
 import OtpVerify from "./pages/auth/OtpVerify";
 import Home from "./pages/Home";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import ProductPage from "./pages/admin/ProductPage";
 function App() {
   return (
     <BrowserRouter>
@@ -25,6 +26,7 @@ function App() {
         >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="products" element={<ProductPage />} />
         </Route>
         {/* public  routes*/}
         <Route path="/home" element={<Home />} />

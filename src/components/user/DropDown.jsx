@@ -9,10 +9,10 @@ const DropDown = () => {
   return (
     <div className="relative">
       <button onClick={toggleDropDown}>
-        <FaUserCircle className="text-2xl" />
+        <FaUserCircle className="text-2xl cursor-pointer" />
       </button>
       {open && (
-        <div className=" absolute w-[150px] rounded right-0 mt-3 rounded text-black shadow-lg  ">
+        <div className="absolute right-0 top-full mt-4 z-50 w-[180px] bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
           <ul>
             <li className="px-8 py-2 cursor:pointer hover:bg-gray-200">
               Profile

@@ -6,6 +6,7 @@ const Home = () => {
     <div>
       <UserHeader />
       <HeroSection />
+      <footer />
     </div>
   );
 };

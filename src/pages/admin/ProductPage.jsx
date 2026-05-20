@@ -10,6 +10,7 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [districts, setDistricts] = useState([]);
+  const [categories, setCategories] = useState([]);
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -18,9 +19,24 @@ const ProductPage = () => {
   useEffect(() => {
     if (token) {
       fetchDistricts();
+      fetchCategories();
       fetchProducts();
     }
   }, [token]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/all-categories");
+      const result = await response.json();
+      if (response.ok) {
+        setCategories(result.data);
+      } else {
+        toast.error("Failed to fetch the categories");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const fetchDistricts = async () => {
     try {
       const response = await fetch("http://localhost:8080/api/all-districts");
@@ -28,7 +44,7 @@ const ProductPage = () => {
       if (response.ok) {
         setDistricts(result.data);
       } else {
-        toast.error(result.message || "Failed to fetch Districts");
+        toast.error("Failed to fetch Districts");
       }
     } catch (error) {
       console.log(error);
@@ -75,7 +91,7 @@ const ProductPage = () => {
           + Add Product
         </button>
       </div>
-      {/*filters */}
+      {/*filter districts */}
       <div className=" flex bg-white rounded-2xl justify-between px-8 py-5 mt-6 shadow">
         <select className=" border border-gray-300 bg-white rounded-xl px-4 py-3 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">All Districts</option>
@@ -85,10 +101,16 @@ const ProductPage = () => {
             </option>
           ))}
         </select>
+        {/* filter categories*/}
         <select className=" border border-gray-300 rounded-lg px-4 py-3 shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option>All Categories</option>
+          {categories.map((category) => (
+            <option key={category.category_id} value={category.category_id}>
+              {category.categoryName}
+            </option>
+          ))}
         </select>
-        <select className="border rounded-lg px-4 py-3">
+        <select className="border border-gray-300 rounded-lg px-4 py-3 shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option>Sort</option>
         </select>
       </div>
@@ -97,7 +119,7 @@ const ProductPage = () => {
         <div className="text-center text">Loading Products......</div>
       )}
       {/* error */}
-      {error && <div>{error}</div>}
+      {error && <div className="text-center text-xl mt-7px">{error}</div>}
       {!loading && !error && (
         <div>
           <ProductTable products={products} />

@@ -11,6 +11,7 @@ const ProductPage = () => {
   const [error, setError] = useState("");
   const [districts, setDistricts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [sortBy, setSortBy] = useState("");
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -78,6 +79,26 @@ const ProductPage = () => {
       setLoading(false);
     }
   };
+
+  const sortProduct = async (sortType) => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `http://localhost:8080/api/sort-products/${sortType}`,
+      );
+      const result = await response.json();
+      if (response.ok) {
+        setProduct(result.data.content);
+      } else {
+        toast.error("Failed to Fetch Sorted Products");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className=" p-8  bg-slate-50 min-h-full">
       <div className="flex items-center justify-between ">
@@ -110,8 +131,25 @@ const ProductPage = () => {
             </option>
           ))}
         </select>
-        <select className="border border-gray-300 rounded-lg px-4 py-3 shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option>Sort</option>
+        {/*sort products */}
+        <select
+          value={sortBy}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSortBy(value);
+            if (value === "") {
+              fetchProducts();
+            } else {
+              sortProduct(value);
+            }
+          }}
+          className="border border-gray-300 rounded-lg px-4 py-3 shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Sort</option>
+          <option value="priceAsc">Price:Low TO High</option>
+          <option value="priceDesc">Price:High TO Low</option>
+          <option value="nameAsc">Name: A-Z</option>
+          <option value="nameDesc">Name: Z To A</option>
         </select>
       </div>
       {/*loading*/}

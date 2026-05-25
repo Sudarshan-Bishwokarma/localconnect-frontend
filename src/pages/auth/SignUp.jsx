@@ -120,6 +120,7 @@ const SignUp = () => {
         <h1 className=" text-2xl text-center font-bold mb-5 "> SignUp Here</h1>
         <form className="flex  flex-col   gap-6  " onSubmit={handleSubmit}>
           <input
+            type="text"
             name="name"
             placeholder="Enter name here"
             value={user.name}

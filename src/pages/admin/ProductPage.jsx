@@ -12,18 +12,12 @@ const ProductPage = () => {
   const [districts, setDistricts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [sortBy, setSortBy] = useState("");
+
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-  }, [navigate, token]);
-  useEffect(() => {
-    if (token) {
-      fetchDistricts();
-      fetchCategories();
-      fetchProducts();
-    }
-  }, [token]);
+    fetchDistricts();
+    fetchCategories();
+    fetchProducts();
+  }, []);
 
   const fetchCategories = async () => {
     try {
@@ -108,7 +102,10 @@ const ProductPage = () => {
           </h1>
           <p className="text-2xl  mt-2 text-gray-500">Manage your Products</p>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-700 transition text-white px-6 py-3 rounded-xl">
+        <button
+          className="bg-blue-600 hover:bg-blue-700 transition text-white px-6 py-3 rounded-xl flex-wrap"
+          onClick={() => navigate("/admin/add-product")}
+        >
           + Add Product
         </button>
       </div>
@@ -126,7 +123,7 @@ const ProductPage = () => {
         <select className=" border border-gray-300 rounded-lg px-4 py-3 shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option>All Categories</option>
           {categories.map((category) => (
-            <option key={category.category_id} value={category.category_id}>
+            <option key={category.id} value={category.id}>
               {category.categoryName}
             </option>
           ))}

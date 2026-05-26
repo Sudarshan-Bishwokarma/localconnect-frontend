@@ -18,7 +18,7 @@ const ProductPage = () => {
     fetchCategories();
     fetchProducts();
   }, []);
-
+  // fetch all categories
   const fetchCategories = async () => {
     try {
       const response = await fetch("http://localhost:8080/api/all-categories");
@@ -32,6 +32,7 @@ const ProductPage = () => {
       console.log(error);
     }
   };
+  // fetch all districts
   const fetchDistricts = async () => {
     try {
       const response = await fetch("http://localhost:8080/api/all-districts");
@@ -45,6 +46,7 @@ const ProductPage = () => {
       console.log(error);
     }
   };
+  // fetch all  products
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -73,13 +75,14 @@ const ProductPage = () => {
       setLoading(false);
     }
   };
-
+  // sort  products
   const sortProduct = async (sortType) => {
     try {
       setLoading(true);
       const response = await fetch(
         `http://localhost:8080/api/sort-products/${sortType}`,
       );
+
       const result = await response.json();
       if (response.ok) {
         setProduct(result.data.content);
@@ -89,6 +92,55 @@ const ProductPage = () => {
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+  // filter  products by district
+  const filterByDistrict = async (districtId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `http://localhost:8080/api/products/district/${districtId}`,
+      );
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        message: "Something went wrong";
+      }
+      if (response.ok) {
+        setProduct(result.data.content);
+      } else {
+        toast.error("Failed to fetch the products by district");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  //
+  const fllterProductByCategory = async (categoryId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `http://localhost:8080/api/all-products/${categoryId}`,
+      );
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        message: "Something went wrong";
+      }
+
+      if (response.ok) {
+        setProduct(result.data);
+      } else {
+        toast.error("Failed to fetch the producs by category");
+      }
+    } catch (error) {
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -111,7 +163,17 @@ const ProductPage = () => {
       </div>
       {/*filter districts */}
       <div className=" flex bg-white rounded-2xl justify-between px-8 py-5 mt-6 shadow">
-        <select className=" border border-gray-300 bg-white rounded-xl px-4 py-3 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value == "") {
+              fetchProducts();
+            } else {
+              filterByDistrict(value);
+            }
+          }}
+          className=" border border-gray-300 bg-white rounded-xl px-4 py-3 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
           <option value="">All Districts</option>
           {districts.map((district) => (
             <option key={district.id} value={district.id}>
@@ -120,8 +182,18 @@ const ProductPage = () => {
           ))}
         </select>
         {/* filter categories*/}
-        <select className=" border border-gray-300 rounded-lg px-4 py-3 shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option>All Categories</option>
+        <select
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value == "") {
+              fetchProducts();
+            } else {
+              fllterProductByCategory(value);
+            }
+          }}
+          className=" border border-gray-300 rounded-lg px-4 py-3 shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Categories</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.categoryName}
@@ -133,11 +205,10 @@ const ProductPage = () => {
           value={sortBy}
           onChange={(e) => {
             const value = e.target.value;
-            setSortBy(value);
             if (value === "") {
               fetchProducts();
             } else {
-              sortProduct(value);
+              setSortBy(value);
             }
           }}
           className="border border-gray-300 rounded-lg px-4 py-3 shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"

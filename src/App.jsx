@@ -11,6 +11,8 @@ import Home from "./pages/Home";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import ProductPage from "./pages/admin/ProductPage";
 import AddProductForm from "./components/admin/AddProductForm";
+import ViewProduct from "./pages/admin/AdminViewProduct";
+import AdminViewProduct from "./pages/admin/AdminViewProduct";
 function App() {
   return (
     <BrowserRouter>
@@ -29,12 +31,14 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<ProductPage />} />
           <Route path="add-product" element={<AddProductForm />} />
+          <Route path="product/:id" element={<AdminViewProduct />} />
         </Route>
-        {/* public  routes*/}
+        {/* Auth  routes*/}
         <Route path="/home" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/otp-verify" element={<OtpVerify />} />
+        {/*  public  routes */}
       </Routes>
     </BrowserRouter>
   );

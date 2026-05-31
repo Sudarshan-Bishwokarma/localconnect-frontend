@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const AddProductForm = () => {
   const token = localStorage.getItem("token");
@@ -17,6 +18,7 @@ const AddProductForm = () => {
   const [districts, setDistricts] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   useEffect(() => {
     fetchDistricts();
     fetchCategories();
@@ -122,6 +124,7 @@ const AddProductForm = () => {
         setFile(null);
         fileRef.current.value = "";
         setErrors({});
+        navigate("/admin/products");
       } else {
         const error_msg = result?.data?.code;
         if (error_msg == "CATEGORY_NOT_FOUND") {

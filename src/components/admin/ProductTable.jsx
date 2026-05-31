@@ -1,5 +1,5 @@
 import ProductRow from "./ProductRow";
-const ProductTable = ({ products }) => {
+const ProductTable = ({ products, emptyMessage }) => {
   return (
     <div className="bg-white  rounded-2xl mt-6 overflow-x-auto shadow-sm border border-gray-200">
       <table className="w-full min-w-[800px]">
@@ -19,8 +19,8 @@ const ProductTable = ({ products }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="5" className="text-center py-10 text-gray-500">
-                No Products Available. Add a new product to get Started.
+              <td colSpan="5" className="text-gray-500 text-center px-2 py-5 ">
+                {emptyMessage}
               </td>
             </tr>
           )}

@@ -145,7 +145,7 @@ const AddProductForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-full">
+    <div className="min-h-full bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 p-8">
       <div className=" bg-white rounded-2xl shadow-sm p-5">
         <h1 className="text-center text-2xl mb-4 font-bold mb-5">
           Add Product Here....

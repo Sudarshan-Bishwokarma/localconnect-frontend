@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaLock } from "react-icons/fa";
 import { FaRegEyeSlash } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { HiOutlineMail } from "react-icons/hi";
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
   const [user, setUser] = useState({
@@ -62,13 +65,22 @@ const Login = () => {
         // store JWT token
         localStorage.setItem("token", result.data.token);
         localStorage.setItem("role", result.data.role);
+        localStorage.setItem("profileStatus", result.data.status);
         toast.success(result.message);
         const role = result.data.role;
-        if (role == "ROLE_ADMIN") {
-          navigate("/admin");
+        const status = result?.data?.status;
+        if (
+          (role === "ROLE_VENDOR" || role === "ROLE_USER") &&
+          status === "PENDING"
+        ) {
+          toast.error("You have not completed  your  profile yet.");
+          navigate("/auth/complete-profile");
+        } else if (role === "ROLE_VENDOR") {
+          navigate("/vendor/products");
         } else {
-          navigate("/home");
+          navigate("/user/products");
         }
+
         // reset Form
         setUser({
           email: "",
@@ -82,59 +94,107 @@ const Login = () => {
         } else if (code == "NOT_VERIFIED") {
           toast.error("Yor are not  verified yet.");
           localStorage.setItem("otpEmail", email);
-          navigate("/otp-verify", { state: { email } });
+          navigate("/auth/otp-verify", { state: { email } });
         } else {
           toast.error(result.message || "Login Failed");
         }
       }
     } catch (error) {
       toast.error("Server error. Try again later.");
-      console.log("error");
+      console.log(error);
     } finally {
       setLoading(false);
     }
   };
   return (
-    <div className="min-h-screen flex items-center justify-center ">
-      <div className="w-full  max-w-md p-5 rounded-lg shadow ">
-        <h1 className="text-2xl text-center font-bold mb-5">Login Here</h1>
-        <form className=" flex  flex-col gap-6 " onSubmit={handleSubmit}>
-          <input
-            type="email"
-            name="email"
-            value={user.email}
-            onChange={handleChange}
-            className="border p-2 rounded  w-full"
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm">{errors.email} </p>
-          )}
+    <div className=" w-full  max-w-xl mt-2">
+      <div className="flex flex-col gap-2  mt-2 ">
+        <h1 className="text-2xl font-semibold text-center">Welcome Back!</h1>
+        <p className=" text-center text-gray-200 text-sm">
+          Login to your account and continue your LocalConnect journey
+        </p>
+      </div>
+      <form className=" grid grid-cols-1 gap-3  mt-7" onSubmit={handleSubmit}>
+        {/* email */}
+        <div>
           <div className="relative">
+            <HiOutlineMail className=" absolute  top-1/2  -translate-y-1/2 text-lg text-gray-500 left-3" />
+
+            <input
+              type="email"
+              name="email"
+              value={user.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              className="border  border-white/40  rounded-xl pl-10 pr-3 py-3  w-full  bg-white/90 shadow-sm  outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent  "
+            />
+          </div>
+
+          <p className="text-red-500 text-sm h-[18px]">{errors.email} </p>
+        </div>
+        {/* passoword */}
+        <div>
+          <div className="relative">
+            <FaLock className="absolute  text-gray-500 top-1/2 -translate-y-1/2 left-3 text-lg" />
             <input
               type={showPassword ? "text" : "password"}
               name="password"
               value={user.password}
               onChange={handleChange}
-              className="border p-2 rounded  w-full"
+              placeholder="Enter your passsword "
+              className="border  border-white/40  rounded-xl pl-10 pr-3 py-3  w-full  bg-white/90 shadow-sm  outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent  "
             />
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password} </p>
-            )}
             <span
               onClick={() => setShowPassword(!showPassword)}
-              className=" absolute top-2.5 right-2 text-black "
+              className=" absolute top-1/2  -translate-y-1/2 right-3 text-black "
             >
               {showPassword ? <FaRegEyeSlash /> : <FaEye />}
             </span>
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-500 p-2 rounded hover:bg-blue-600 transition disabled:bg-gray-400  disabled:cursor-not-allowed"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+          <p className="text-red-500 text-sm min-h-[18px]">{errors.password}</p>
+        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 transition font-medium disabled:bg-gray-400  disabled:cursor-not-allowed  text-white/80"
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </form>
+      {/* forget */}
+      <p className="text-end text-xs mt-2">
+        <span className="text-white/80  cursor-pointer hover:underline">
+          <Link> Forget password?</Link>
+        </span>
+      </p>
+      {/*OR*/}
+      <div className="flex  items-center gap-1 mt-3">
+        <div className=" flex-1 border-t border-white/10"></div>
+        <span className="text-white/80">OR</span>
+        <div className=" flex-1 border-t border-white/10"></div>
+      </div>
+      {/* google login */}
+      <div className="relative mt-3">
+        <FcGoogle className=" absolute  top-1/2 -translate-y-1/2 left-12 text-2xl" />
+        <button
+          type="button"
+          onClick={() =>
+            (window.location.href =
+              "http://localhost:8080/oauth2/authorization/google")
+          }
+          className=" w-full text-center  p-3 bg-white/80 rounded-xl hover:bg-white cursor-pointe transition-all"
+        >
+          Login with Google
+        </button>
+      </div>
+      {/* dont have an account */}
+      <div className="mb-3">
+        <p className="text-center text-white/50 text-sm mt-4">
+          Don't have an account?{""}{" "}
+          <span className="text-white/80 font-semibold cursor-pointer hover:underline">
+            SignUp
+          </span>
+        </p>
       </div>
     </div>
   );

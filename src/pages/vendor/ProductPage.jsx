@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ProductTable from "../../components/admin/ProductTable";
+import ProductTable from "../../components/Vendor/ProductTable";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";

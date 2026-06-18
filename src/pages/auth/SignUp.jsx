@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useRef } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaRegEyeSlash } from "react-icons/fa";
-const SignUp = () => {
+import { FaEye, FaRegEyeSlash, FaLock } from "react-icons/fa";
+import { HiUserGroup, HiOutlineUser, HiOutlineMail } from "react-icons/hi";
+import { FcGoogle } from "react-icons/fc";
+const SignUp = ({ role }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowpassword] = useState(false);
@@ -13,11 +14,8 @@ const SignUp = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    city: "",
-    number: "",
   });
-  const fileRef = useRef(null);
-  const [file, setFile] = useState(null);
+
   const [errors, setErrors] = useState({});
   // handle  input change
   const handleChange = (e) => {
@@ -32,10 +30,7 @@ const SignUp = () => {
       [name]: "",
     }));
   };
-  // handle  file change
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
+
   //  validation
   const validate = () => {
     const err = {};
@@ -55,13 +50,7 @@ const SignUp = () => {
     } else if (user.password.trim() !== user.confirmPassword.trim()) {
       err.confirmPassword = "Password  do not match";
     }
-    if (!user.city.trim()) err.city = "city is required";
-    if (!user.number.trim()) {
-      err.number = "Number is required";
-    } else if (!/^\d{10}$/.test(user.number)) {
-      err.number = "Enter valid 10-digit number";
-    }
-    if (!file) err.file = "Profile  image is  required";
+
     return err;
   };
   const handleSubmit = async (e) => {
@@ -72,25 +61,31 @@ const SignUp = () => {
 
     try {
       setLoading(true);
-      const formData = new FormData(); // FormData cannot store a JavaScript object directly it  stores key-value pairs
-      const { confirmPassword, ...userData } = user; // confirmPassword is removed from userData.
-      formData.append("data", JSON.stringify(userData));
-      formData.append("file", file);
+      const { confirmPassword, ...userData } = user;
+      const payload = {
+        ...userData,
+        roleType: role,
+      };
+
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
+
       let result;
       try {
         result = await response.json();
       } catch {
-        result = { message: "Something went wrong" };
+        toast.error("Something went wrong");
       }
 
       if (response.ok) {
-        toast.success(result.message);
+        toast.success(result.data);
         localStorage.setItem("otpEmail", user.email);
-        navigate("/otp-verify", {
+        navigate("/auth/otp-verify", {
           state: { email: user.email },
         });
 
@@ -100,7 +95,7 @@ const SignUp = () => {
         if (code == "USER_ALREADY_EXISTS") {
           toast.error("User Already exists.");
           console.log(" User already exists.");
-          navigate("/login");
+          navigate("/auth/login");
         } else {
           toast.error(result.message || "Signup failed");
           console.log(" SignUp Failed.");
@@ -115,106 +110,144 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex  items-center justify-center min-h-screen">
-      <div className="p-5 w-full max-w-md shadow-md rounded-lg">
-        <h1 className=" text-2xl text-center font-bold mb-5 "> SignUp Here</h1>
-        <form className="flex  flex-col   gap-6  " onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Enter name here"
-            value={user.name}
-            onChange={handleChange}
-            className="border p-2 w-full rounded"
-          />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter email here"
-            value={user.email}
-            onChange={handleChange}
-            className="border p-2 w-full rounded"
-          />
-          {errors.email && (
-            <p className="text-sm text-red-500">{errors.email}</p>
-          )}
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Enter password here"
-              value={user.password}
-              onChange={handleChange}
-              className="border p-2 w-full rounded"
-            />
-            <span
-              onClick={() => setShowpassword(!showPassword)}
-              className="absolute  right-3 top-2.5 cursor-pointer text-black"
-            >
-              {showPassword ? <FaRegEyeSlash /> : <FaEye />}
-            </span>
+    <div className="max-w-xl">
+      <div className="flex items-start gap-5 mb-3">
+        <div className="bg-white/40 h-12 w-12 p-2 rounded-2xl">
+          <HiUserGroup className="text-black text-3xl" />
+        </div>
+        <div>
+          <h1 className="font-semibold text-2xl text-center">Create Account</h1>
+          <p className="text-gray-200 text-sm p-1">
+            Join LocalConnect and start your journey
+          </p>
+        </div>
+      </div>
+      <div>
+        <form className="  grid grid-cols-1 gap-3 " onSubmit={handleSubmit}>
+          {/* Full Name */}
+          <div>
+            <div className="relative">
+              <HiOutlineUser className="absolute top-1/2 -translate-y-1/2  left-3 text-gray-500 text-lg  " />
+              <input
+                type="text"
+                name="name"
+                placeholder=" Enter your full name"
+                value={user.name}
+                onChange={handleChange}
+                className="border  border-white/40  rounded-xl pl-10 pr-3 py-3  w-full  bg-white/90 shadow-sm  outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              />
+            </div>
+            <p className="text-red-500 text-sm h-[18px]">{errors.name}</p>
           </div>
-          {errors.password && (
-            <p className="text-sm text-red-500">{errors.password}</p>
-          )}
-          <div className="relative">
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              name="confirmPassword"
-              placeholder="Re-enter password here"
-              value={user.confirmPassword}
-              onChange={handleChange}
-              className="border p-2 w-full rounded"
-            />
-            <span
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-2.5 cursor-pointer text-black"
-            >
-              {showConfirmPassword ? <FaRegEyeSlash /> : <FaEye />}
-            </span>
+          {/* Email */}
+          <div>
+            <div className="relative  ">
+              <HiOutlineMail className=" absolute top-1/2 -translate-y-1/2 left-3 text-gray-500 text-lg " />
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                value={user.email}
+                onChange={handleChange}
+                className="border  border-white/40  rounded-xl pl-10 pr-3 py-3  w-full  bg-white/90 shadow-sm  outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent  "
+              />
+            </div>
+
+            <p className="text-sm text-red-500 h-[18px]">{errors.email}</p>
           </div>
-          {errors.confirmPassword && (
-            <p className="text-sm text-red-500">{errors.confirmPassword}</p>
-          )}
-          <input
-            type="text"
-            name="city"
-            placeholder="Enter your address here"
-            value={user.city}
-            onChange={handleChange}
-            className="border p-2 w-full rounded"
-          />
-          {errors.city && <p className="text-sm text-red-500">{errors.city}</p>}
-          <input
-            type="text"
-            name="number"
-            placeholder="Enter  your number here"
-            value={user.number}
-            onChange={handleChange}
-            className="border p-2 w-full rounded"
-          />
-          {errors.number && (
-            <p className="text-sm text-red-500">{errors.number}</p>
-          )}
-          <input
-            type="file"
-            ref={fileRef}
-            accept="image/*"
-            onChange={handleFileChange}
-            className="border p-2 w-full rounded"
-          />
-          {errors.file && (
-            <p className="text-red-500  text-sm">{errors.file}</p>
-          )}
+          {/* Password */}
+          <div>
+            <div className="relative">
+              <FaLock className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-500 text-lg" />
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Enter your password"
+                value={user.password}
+                onChange={handleChange}
+                className="border  border-white/40  rounded-xl pl-10 pr-3 py-3  w-full  bg-white/90 shadow-sm  outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              />
+              <span
+                onClick={() => setShowpassword(!showPassword)}
+                className="absolute  right-3 top-1/2 -translate-y-1/2 cursor-pointer text-black"
+              >
+                {showPassword ? <FaRegEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+
+            <p className="text-sm text-red-500 h-[18px]">{errors.password}</p>
+          </div>
+          {/*   confirm pssword */}
+          <div>
+            <div className="relative">
+              <FaLock className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-500 text-lg" />
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="Re-enter your password"
+                value={user.confirmPassword}
+                onChange={handleChange}
+                className="border  border-white/40  rounded-xl pl-10 pr-3 py-3  w-full  bg-white/90 shadow-sm  outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              />
+              <span
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-black"
+              >
+                {showConfirmPassword ? <FaRegEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+
+            <p className="text-sm text-red-500 h-[18px]">
+              {errors.confirmPassword}
+            </p>
+          </div>
+          {/* submit */}
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition disabled:bg-gray-400"
+            className="bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 transition disabled:bg-gray-400"
           >
-            {loading ? "Registering..." : "SignUp"}
+            {loading ? "Registering..." : "Create Account"}
           </button>
         </form>
+        <p className="text-center text-white/50 text-sm mt-3">
+          By creating an account you agree to our <br />
+          <span className="text-white/80 font-semibold cursor-pointer hover:underline">
+            Terms of Service
+          </span>
+          {""} and {""}
+          <span className="text-white/80 font-semibold cursor-pointer hover:underline">
+            Privacy Policy
+          </span>
+        </p>
+        {/*OR */}
+        <div className="flex  items-center  mt-3 gap-1">
+          <div className=" flex-1  border-t border-white/10"></div>
+          <span className="text-white/80">OR</span>
+          <div className="flex-1  border-t border-white/10"></div>
+        </div>
+        {/*  login with google */}
+        <div className="relative mt-3">
+          <FcGoogle className=" absolute  top-1/2 -translate-y-1/2 left-12 text-2xl" />
+          <button
+            type="button"
+            onClick={() =>
+              (window.location.href =
+                "http://localhost:8080/oauth2/authorization/google")
+            }
+            className=" w-full text-center   p-3 bg-white/80 rounded-xl hover:bg-white cursor-pointe transition-all
+    duration-300 shadow-lg"
+          >
+            Login with Google
+          </button>
+        </div>
+        {/*Already */}
+        <p className="text-center text-white/50 text-sm mt-2">
+          Already have an account? {""}
+          <span className=" font-semibold cursor-pointer hover:underline">
+            Login
+          </span>
+        </p>
       </div>
     </div>
   );

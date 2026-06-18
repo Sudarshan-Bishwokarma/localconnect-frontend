@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
 
-const AdminViewProduct = () => {
+const VendorViewProduct = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [productDetails, setProductDetails] = useState({});
@@ -47,4 +47,4 @@ const AdminViewProduct = () => {
     </div>
   );
 };
-export default AdminViewProduct;
+export default VendorViewProduct;

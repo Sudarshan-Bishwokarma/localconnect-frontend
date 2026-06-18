@@ -6,7 +6,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (!token) {
     toast.error("Please login First!");
-    return <Navigate to="/login" replace />;
+
+    return <Navigate to="/auth/login" replace />;
   }
   if (allowedRoles && !allowedRoles.includes(role)) {
     toast.error("Access denied");

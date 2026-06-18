@@ -19,10 +19,10 @@ const UserHeader = () => {
           <Link to="/orders" className="hover:text-blue-600 transition">
             My Orders
           </Link>
-          <Link to="/signup" className="hover:text-blue-600 transition">
+          <Link to="/auth/signup" className="hover:text-blue-600 transition">
             SignUp
           </Link>
-          <Link to="/login" className="hover:text-blue-600 transition">
+          <Link to="/auth/login" className="hover:text-blue-600 transition">
             Login
           </Link>
         </div>

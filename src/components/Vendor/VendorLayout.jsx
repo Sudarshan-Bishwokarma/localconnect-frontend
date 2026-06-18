@@ -3,7 +3,7 @@ import AdminHeader from "./AdminHeader";
 import AdminSideBar from "./AdminSideBar";
 import Footer from "../common/Footer";
 
-const AdminLayout = () => {
+const VendorLayout = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <AdminHeader />
@@ -20,4 +20,4 @@ const AdminLayout = () => {
     </div>
   );
 };
-export default AdminLayout;
+export default VendorLayout;

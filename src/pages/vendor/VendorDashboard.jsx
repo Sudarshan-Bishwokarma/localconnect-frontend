@@ -31,7 +31,7 @@ const barData = [
   { month: "May", orders: 50 },
 ];
 
-const AdminDashboard = () => {
+const VendorDashboard = () => {
   return (
     <div className="p-6 bg-gray-100 ">
       {/* TITLE */}
@@ -109,4 +109,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default VendorDashboard;

@@ -10,7 +10,7 @@ import {
   FiImage,
 } from "react-icons/fi";
 
-const AddProductForm = () => {
+const VendorProductForm = () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const [formData, setFormData] = useState({
@@ -155,7 +155,9 @@ const AddProductForm = () => {
   return (
     <div className="min-h-full bg-slate-50 p-8">
       <div className=" mb-10 mt-3 px-3">
-        <h1 className="text-4xl  font-bold text-gray-800 ">Add Product Here</h1>
+        <h1 className="text-4xl  font-bold text-gray-800 ">
+          Add Product Here....
+        </h1>
 
         <p className="text-gray-500 text-xl mt-2 max-w-3xl ">
           Create and publish products for your marketplace. Add product
@@ -342,4 +344,4 @@ const AddProductForm = () => {
     </div>
   );
 };
-export default AddProductForm;
+export default VendorProductForm;

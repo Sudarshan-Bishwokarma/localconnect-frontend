@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { ShieldCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -10,11 +11,12 @@ const OtpVerify = () => {
   const [error, setError] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
+  const otpRef = useRef([]);
   const email = location.state?.email || localStorage.getItem("otpEmail");
   useEffect(() => {
     if (!email) {
       toast.error("Session Expired");
-      navigate("/login");
+      navigate("/auth/login");
     } else {
       setTimer(30);
       setIsTimerActive(true);
@@ -34,9 +36,25 @@ const OtpVerify = () => {
 
     return () => clearTimeout(timeout);
   }, [timer, isTimerActive]);
-  // handle   change
-  const handleChange = (e) => {
-    setOtp(e.target.value);
+  // OTP input handling
+  const handleChange = (e, index) => {
+    const value = e.target.value;
+
+    // only numbers allowed
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = otp.split("");
+
+    newOtp[index] = value;
+
+    const finalOtp = newOtp.join("");
+
+    setOtp(finalOtp);
+
+    // move forward
+    if (value && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
   };
   //  handle resend
   const handleResend = async () => {
@@ -120,7 +138,7 @@ const OtpVerify = () => {
       if (response.ok) {
         toast.success(result.message);
         localStorage.removeItem("otpEmail");
-        navigate("/login");
+        navigate("/auth/login");
       } else {
         const error = result?.data?.code;
         if (error == "VERIFIED") {
@@ -138,43 +156,73 @@ const OtpVerify = () => {
       setLoading(false);
     }
   };
+
   return (
-    <div className="min-h-screen  flex justify-center items-center">
-      <div>
-        <h1 className="text-2xl font-bold text-center mb-4">
-          OTP Verification
-        </h1>
-        <form onSubmit={handleVerify} className="flex flex-col gap-6">
-          <input
-            type="text"
-            placeholder="Enter  OTP Here "
-            value={otp}
-            onChange={handleChange}
-            className="border p-2 "
-          />
-          {error && <p className=" text-red-500 text-sm">{error}</p>}
+    <div className="w-full max-w-xl">
+      <div className="flex flex-col  items-center justify-center gap-3 mt-2">
+        <ShieldCheck className="text-white" size={80} />
+        <div>
+          <h1 className="text-2xl font-bold text-center">OTP Verification</h1>
+          <p className="text-sm text-center text-gray-800">
+            We have sent a Verification code to your email.
+          </p>
+          <p className="text-sm text-center text-gray-700">
+            Please enter the 6-digit code below.
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleVerify} className="grid grid-cols-1 mt-4">
+        <div className="flex justify-center gap-4">
+          {[...Array(6)].map((_, index) => (
+            <input
+              type="text"
+              key={index}
+              maxLength={1}
+              ref={(el) => (otpRef.current[index] = el)}
+              onChange={(e) => handleChange(e, index)}
+              onKeyDown={(e) => handleKeyDown(e, index)}
+              className="
+                w-14 h-14
+                rounded-2xl
+                border border-gray-300
+                bg-white
+                text-center
+                text-2xl
+                font-bold
+                shadow-sm
+                outline-none
+                transition
+                focus:border-blue-500
+                focus:ring-4
+                focus:ring-blue-200
+              "
+            />
+          ))}
+        </div>
+
+        {error && <p className=" text-red-500 text-sm">{error}</p>}
+        <button
+          disabled={loading}
+          type="submit"
+          className="bg-blue-600 text-white p-2  hover:bg-blue-700 rounded  mt-7"
+        >
+          {loading ? "Verifying..." : "Verify"}
+        </button>
+      </form>
+      {/* resend  botton */}
+      <div className="mt-4 text-center">
+        {timer > 0 ? (
+          <p className="text-white/400">Resend in {timer}</p>
+        ) : (
           <button
             disabled={loading}
-            type="submit"
-            className="bg-blue-600 text-white p-2  hover:bg-blue-700 rounded "
+            className="p-2 text-white/80  hover:underline"
+            onClick={handleResend}
           >
-            {loading ? "Verifying..." : "Verify"}
+            Resend OTP
           </button>
-        </form>
-        {/* resend  botton */}
-        <div className="mt-4 text-center">
-          {timer > 0 ? (
-            <p className="text-gray-500">Resend in {timer}</p>
-          ) : (
-            <button
-              disabled={loading}
-              className="p-2 text-blue-500 hover:underline"
-              onClick={handleResend}
-            >
-              Resend OTP
-            </button>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,37 +1,38 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
-import { Navigate, useNavigate } from "react-router-dom";
-import {
-  FiTag,
-  FiDollarSign,
-  FiFileText,
-  FiMapPin,
-  FiGrid,
-  FiImage,
-} from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { FiTag, FiFileText, FiImage, FiPackage } from "react-icons/fi";
+import { MdOutlineAddCircleOutline } from "react-icons/md";
+import { FaPlus, FaTrash } from "react-icons/fa";
 
 const VendorProductForm = () => {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+
   const [formData, setFormData] = useState({
     productName: "",
-    productPrice: "",
     productDescription: "",
     categoryId: "",
     districtId: "",
+    hasVariants: false,
+    variants: [],
+    price: "",
+    stock: "",
   });
+
   const fileRef = useRef(null);
   const [file, setFile] = useState(null);
   const [categories, setCategories] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+
   useEffect(() => {
     fetchDistricts();
     fetchCategories();
   }, []);
-  // handle change
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -39,309 +40,355 @@ const VendorProductForm = () => {
       [name]: value,
     }));
   };
-  // fetch all districts
+
+  const handleVariantChange = (index, e) => {
+    const { name, value } = e.target;
+    const updated = [...formData.variants];
+    updated[index][name] = value;
+
+    setFormData((prev) => ({
+      ...prev,
+      variants: updated,
+    }));
+  };
+
+  // ADD VARIANT
+  const handleAddVariant = () => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: [
+        ...prev.variants,
+        { size: "", color: "", price: "", stock: "" },
+      ],
+    }));
+  };
+
+  // DELETE VARIANT
+  const handleDelete = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.variants.filter((_, i) => i !== index),
+    }));
+  };
+
   const fetchDistricts = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/api/all-districts");
-      const result = await response.json();
-      if (response.ok) {
-        setDistricts(result.data);
-      } else {
-        toast.error("Failed to fetch districts");
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    const res = await fetch("http://localhost:8080/api/all-districts");
+    const data = await res.json();
+    setDistricts(data.data || []);
   };
-  // fetch categories
+
   const fetchCategories = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/api/all-categories");
-      const result = await response.json();
-      if (response.ok) {
-        setCategories(result.data);
-      } else {
-        toast.error("Failed to fetch Categories");
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    const res = await fetch("http://localhost:8080/api/all-categories");
+    const data = await res.json();
+    setCategories(data.data || []);
   };
-  // handle  errors
+
+  // VALIDATION
   const validate = () => {
     const err = {};
-    if (!formData.productName.trim()) {
-      err.productName = "Product name is  required";
+
+    if (!formData.productName.trim()) err.productName = "Product name required";
+
+    if (!formData.productDescription.trim())
+      err.productDescription = "Description required";
+
+    if (!formData.categoryId) err.categoryId = "Select category";
+    if (!formData.districtId) err.districtId = "Select district";
+
+    // SINGLE PRODUCT
+    if (!formData.hasVariants) {
+      if (!formData.price || formData.price <= 0)
+        err.price = "Valid price required";
+
+      if (!formData.stock || formData.stock < 0)
+        err.stock = "Valid stock required";
     }
-    if (!formData.productPrice.trim()) {
-      err.productPrice = "Product Price  is required ";
-    } else if (Number(formData.productPrice) <= 0) {
-      err.productPrice = "Product Price must be greater than 0";
+
+    // VARIANT PRODUCT
+    if (formData.hasVariants) {
+      if (formData.variants.length === 0) {
+        err.variants = "Add at least one variant";
+      }
+
+      formData.variants.forEach((v, i) => {
+        if (!v.price || v.price <= 0) err[`price_${i}`] = "Price required";
+
+        if (v.stock === "" || v.stock < 0) err[`stock_${i}`] = "Stock required";
+      });
     }
-    if (!formData.productDescription.trim()) {
-      err.productDescription = "Product Description is required";
-    }
-    if (!formData.categoryId) {
-      err.categoryId = "Please select a category";
-    }
-    if (!formData.districtId) {
-      err.districtId = "Please  select a district";
-    }
-    if (!file) {
-      err.file = " Please  upload a image";
-    }
+
+    if (!file) err.file = "Image required";
+
     return err;
   };
-  //  handle submit
+
+  // SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validateErrors = validate();
-    setErrors(validateErrors);
-    if (Object.keys(validateErrors).length > 0) return;
+
+    const validation = validate();
+    setErrors(validation);
+
+    if (Object.keys(validation).length > 0) return;
+
+    const payload = {
+      ...formData,
+      variants: formData.hasVariants ? formData.variants : [],
+    };
 
     try {
       setLoading(true);
+
       const fData = new FormData();
-      fData.append("data", JSON.stringify(formData));
-      fData.append("image", file);
-      const response = await fetch(
-        "http://localhost:8080/api/admin/add-product",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: fData,
-        },
+      fData.append(
+        "product",
+        new Blob([JSON.stringify(payload)], {
+          type: "application/json",
+        }),
       );
-      let result;
-      try {
-        result = await response.json();
-      } catch {
-        result = { message: "Something went wrong" };
-      }
-      if (response.ok) {
-        toast.success(result.message);
+
+      fData.append("image", file);
+
+      const res = await fetch("http://localhost:8080/api/vendor/add-product", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: fData,
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        toast.success("Product added successfully");
+
         setFormData({
           productName: "",
-          productPrice: "",
           productDescription: "",
           categoryId: "",
           districtId: "",
+          hasVariants: false,
+          variants: [],
+          price: "",
+          stock: "",
         });
+
         setFile(null);
         fileRef.current.value = "";
-        setErrors({});
-        navigate("/admin/products");
+
+        navigate("/vendor/products");
       } else {
-        const error_msg = result?.data?.code;
-        if (error_msg == "CATEGORY_NOT_FOUND") {
-          toast.error("Category not  found ");
-        }
-        if (error_msg == "PRODUCT_ALREADY_EXIST") {
-          toast.error("Product already exist");
-        }
-        if (error_msg == "DISTRICT_NOT_FOUND") {
-          toast.error("District not  found");
-        }
+        toast.error(result.message || "Error occurred");
       }
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-full bg-slate-50 p-8">
-      <div className=" mb-10 mt-3 px-3">
-        <h1 className="text-4xl  font-bold text-gray-800 ">
-          Add Product Here....
-        </h1>
-
-        <p className="text-gray-500 text-xl mt-2 max-w-3xl ">
-          Create and publish products for your marketplace. Add product
-          information, pricing, category, district, and upload an image to
-          showcase your item professionally.
-        </p>
-      </div>
-      <div className="bg-white rounded-3xl shadow-lg border  border-slate-200 p-8 ">
-        <form className="space-y-8" onSubmit={handleSubmit}>
-          {/* product name */}
-          <div className="grid grid-cols-12 gap-3 ">
-            <div className="col-span-3 flex  items-center gap-4 mb-2 p-3">
-              <FiTag className="text-blue-500 text-lg" />
-              <label className="font-semibold text-lg text-slate-700">
-                Product Name
-              </label>
-            </div>
-            <div className="col-span-9">
-              <input
-                type="text"
-                name="productName"
-                value={formData.productName}
-                placeholder="Enter product name here...."
-                className="border border-gray-300 rounded p-2 w-full outline-none focus:ring-1 focus:ring-blue-500"
-                onChange={handleChange}
-              />
-              <p className="text-red-500 text-sm min-h-[18px]">
-                {errors.productName}
-              </p>
-            </div>
+    <div className="min-h-full bg-slate-50 p-5">
+      {/* HEADER */}
+      <div className="flex justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <FiPackage className="text-blue-500 text-4xl" />
+          <div>
+            <h1 className="text-2xl font-bold">Add Product</h1>
+            <p className="text-sm text-gray-500">Create marketplace product</p>
           </div>
-          {/* Product Price  */}
-          <div className="grid grid-cols-12 gap-3 ">
-            <div className="col-span-3 flex items-center gap-4 mb-2 p-3 ">
-              <FiDollarSign className="text-lg text-blue-500 " />
-              <label className="text-slate-700 font-semibold text-lg">
-                Product Price
-              </label>
-            </div>
-            <div className="col-span-9">
+        </div>
+
+        <button
+          onClick={() => navigate("/vendor/products")}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+        >
+          Back
+        </button>
+      </div>
+
+      {/* FORM */}
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl">
+        {/* PRODUCT NAME */}
+        <input
+          name="productName"
+          value={formData.productName}
+          onChange={handleChange}
+          placeholder="Product name"
+          className="border p-2 w-full mb-2"
+        />
+        <p className="text-red-500 text-sm">{errors.productName}</p>
+
+        {/* DESCRIPTION */}
+        <textarea
+          name="productDescription"
+          value={formData.productDescription}
+          onChange={handleChange}
+          placeholder="Description"
+          className="border p-2 w-full mb-2"
+        />
+        <p className="text-red-500 text-sm">{errors.productDescription}</p>
+
+        {/* CATEGORY + DISTRICT */}
+        <div className="grid grid-cols-2 gap-4">
+          <select
+            name="categoryId"
+            onChange={handleChange}
+            className="border p-2"
+          >
+            <option value="">Select Category</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.categoryName}
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="districtId"
+            onChange={handleChange}
+            className="border p-2"
+          >
+            <option value="">Select District</option>
+            {districts.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.districtName}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <p className="text-red-500 text-sm">{errors.categoryId}</p>
+        <p className="text-red-500 text-sm">{errors.districtId}</p>
+
+        {/* TOGGLE */}
+        <div className="flex items-center gap-2 mt-4">
+          <input
+            type="checkbox"
+            checked={formData.hasVariants}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                hasVariants: e.target.checked,
+                variants: e.target.checked
+                  ? [{ size: "", color: "", price: "", stock: "" }]
+                  : [],
+              }))
+            }
+          />
+          <label>Product has variants</label>
+        </div>
+
+        {/* SINGLE PRODUCT MODE */}
+        {!formData.hasVariants && (
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
               <input
                 type="number"
-                name="productPrice"
-                value={formData.productPrice}
-                placeholder="Enter product price here...."
-                className="border rounded border-gray-300 p-2 w-full outline-none  focus:ring-1 focus:ring-blue-500 "
+                name="price"
+                value={formData.price}
                 onChange={handleChange}
+                placeholder="Price"
+                className="border p-2 w-full"
               />
-              <p className="text-red-500 text-sm min-h-[18px]">
-                {errors.productPrice}
-              </p>
-            </div>
-          </div>
-          {/*  product descrition */}
-          <div className="grid grid-cols-12">
-            <div className="col-span-3 flex items-center mb-3 gap-3">
-              <FiFileText className="text-blue-500 text-lg" />
-              <label className="text-slate-700 font-semibold text-lg">
-                Product Description
-              </label>
-            </div>
-            <div className="col-span-9">
-              <textarea
-                name="productDescription"
-                value={formData.productDescription}
-                placeholder="Enter product description here.........."
-                className="border
-              rounded px-2 py-3 w-full  outline-none focus:ring-1 focus:ring-blue-500"
-                onChange={handleChange}
-              ></textarea>
-              <p className="text-red-500 text-sm min-h-[18px]">
-                {errors.productDescription}
-              </p>
-            </div>
-          </div>
-          {/* select categories  districts */}
-          <div className="grid grid-cols-2 gap-8">
-            {/* select category */}
-            <div>
-              <select
-                name="categoryId"
-                value={formData.categoryId}
-                className=" text-center border rounded-xl bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                onChange={handleChange}
-              >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.categoryName}
-                  </option>
-                ))}
-              </select>
-              <p className="text-red-500 text-sm min-h-[16px] ">
-                {errors.categoryId}
-              </p>
-            </div>
-            {/* select districts */}
-            <div>
-              <select
-                name="districtId"
-                value={formData.districtId}
-                className=" text-center border bg-white  px-4 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                onChange={handleChange}
-              >
-                <option value=""> Select District</option>
-                {districts.map((district) => (
-                  <option key={district.id} value={district.id}>
-                    {district.districtName}
-                  </option>
-                ))}
-              </select>
-              <p className="text-red-500 text-sm min-h-[16px] ">
-                {errors.districtId}
-              </p>
-            </div>
-          </div>
-          {/* Product Image */}
-          <div className="grid grid-cols-12 gap-3">
-            <div className="col-span-3 flex items-center gap-4">
-              <FiImage className="text-blue-500 text-lg" />
-              <label className="text-slate-700 font-semibold text-lg">
-                Product Image
-              </label>
+              <p className="text-red-500 text-sm">{errors.price}</p>
             </div>
 
-            <div className="col-span-9">
+            <div>
               <input
-                type="file"
-                ref={fileRef}
-                accept="image/*"
-                hidden
-                onChange={(e) => {
-                  setFile(e.target.files[0]);
-                }}
+                type="number"
+                name="stock"
+                value={formData.stock}
+                onChange={handleChange}
+                placeholder="Stock"
+                className="border p-2 w-full"
               />
-
-              {/* Upload Box */}
-              <div
-                onClick={() => fileRef.current.click()}
-                className="border-2 border-dashed border-blue-300 rounded-2xl p-8 cursor-pointer hover:border-blue-500 transition bg-blue-50/30"
-              >
-                <div className="flex items-center justify-between">
-                  {/* Left Content */}
-                  <div className="flex items-center gap-5">
-                    <div className="bg-blue-100 p-4 rounded-full">
-                      <FiImage className="text-blue-600 text-3xl" />
-                    </div>
-
-                    <div>
-                      <p className="font-semibold text-slate-700">
-                        {file ? file.name : "Click to upload product image"}
-                      </p>
-
-                      <p className="text-sm text-slate-500">
-                        PNG, JPG, JPEG up to 5MB
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Right Button */}
-                  <button
-                    type="button"
-                    className="px-5 py-2 border border-blue-500 text-blue-600 rounded-xl hover:bg-blue-500 hover:text-white transition"
-                  >
-                    Choose File
-                  </button>
-                </div>
-              </div>
-
-              <p className="text-red-500 text-sm min-h-[16px] mt-2">
-                {errors.file}
-              </p>
+              <p className="text-red-500 text-sm">{errors.stock}</p>
             </div>
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-3 py-2 bg-blue-500 rounded-xl text-white hover:text-black flex-wrap w-full"
-          >
-            {loading ? "Adding Product" : "Add Product"}
-          </button>
-        </form>
-      </div>
+        )}
+
+        {/* VARIANT MODE */}
+        {formData.hasVariants && (
+          <div className="mt-5 border p-4 rounded-xl">
+            <div className="flex justify-between mb-3">
+              <h2 className="font-bold">Variants</h2>
+
+              <button
+                type="button"
+                onClick={handleAddVariant}
+                className="text-blue-500"
+              >
+                + Add Variant
+              </button>
+            </div>
+
+            {formData.variants.map((v, i) => (
+              <div key={i} className="grid grid-cols-4 gap-2 mb-2">
+                <input
+                  name="size"
+                  value={v.size}
+                  onChange={(e) => handleVariantChange(i, e)}
+                  placeholder="Size"
+                  className="border p-2"
+                />
+
+                <input
+                  name="color"
+                  value={v.color}
+                  onChange={(e) => handleVariantChange(i, e)}
+                  placeholder="Color"
+                  className="border p-2"
+                />
+
+                <input
+                  name="price"
+                  type="number"
+                  value={v.price}
+                  onChange={(e) => handleVariantChange(i, e)}
+                  placeholder="Price"
+                  className="border p-2"
+                />
+
+                <input
+                  name="stock"
+                  type="number"
+                  value={v.stock}
+                  onChange={(e) => handleVariantChange(i, e)}
+                  placeholder="Stock"
+                  className="border p-2"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => handleDelete(i)}
+                  className="text-red-500 col-span-4 text-left"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* IMAGE */}
+        <input
+          type="file"
+          ref={fileRef}
+          onChange={(e) => setFile(e.target.files[0])}
+        />
+        <p className="text-red-500 text-sm">{errors.file}</p>
+
+        {/* SUBMIT */}
+        <button
+          disabled={loading}
+          className="bg-blue-500 text-white w-full p-2 mt-4 rounded-lg"
+        >
+          {loading ? "Saving..." : "Add Product"}
+        </button>
+      </form>
     </div>
   );
 };
+
 export default VendorProductForm;

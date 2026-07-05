@@ -6,8 +6,8 @@ const CountrySelect = ({ value, onChange }) => {
   return (
     <Select
       options={options}
-      value={options.find((c) => c.label === value)}
-      onChange={(selected) => onChange(selected.label)}
+      value={value}
+      onChange={(selected) => onChange(selected)}
       placeholder="Select Country"
       isSearchable
       styles={{

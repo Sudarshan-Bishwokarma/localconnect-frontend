@@ -72,8 +72,9 @@ const ProductPage = () => {
       if (sortBy) {
         params.append("sortType", sortBy);
       }
+
       const response = await fetch(
-        `http://localhost:8080/api/admin/products?${params.toString()}`,
+        `http://localhost:8080/api/vendor/products?${params.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -82,7 +83,7 @@ const ProductPage = () => {
       );
       if (response.status === 401) {
         localStorage.removeItem("token");
-        toast.error("Session Expired. [Please Login First");
+        toast.error("Session Expired.Please Login First");
         navigate("/login");
         return;
       }
@@ -119,11 +120,13 @@ const ProductPage = () => {
           <h1 className="text-4xl font-bold text-gray-800">
             Product Management
           </h1>
-          <p className="text-2xl  mt-2 text-gray-500">Manage your Products</p>
+          <p className="text-2xl  mt-2 text-gray-500 leading-relaxed ">
+            Manage your Products
+          </p>
         </div>
         <button
-          className="bg-blue-600 hover:bg-blue-700 transition text-white px-6 py-3 rounded-xl flex-wrap"
-          onClick={() => navigate("/admin/add-product")}
+          className="bg-blue-500 rounded-xl cursor-pointer hover:bg-blue-600  hover:scale-[1.02] text-white font-semibold  p-3 rounded-xl flex-wrap disabled:bg-gray-400  transition-all   "
+          onClick={() => navigate("/vendor/add-product")}
         >
           + Add Product
         </button>
@@ -188,7 +191,7 @@ const ProductPage = () => {
           <ProductTable
             products={products}
             emptyMessage={
-              role === "ROLE_ADMIN"
+              role === "ROLE_VENDOR"
                 ? "No Produt Avaliabe. Please  add a  new  product..."
                 : "No Product Avaliable"
             }

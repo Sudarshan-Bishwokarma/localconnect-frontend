@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AdminHeader from "./components/Vendor/AdminHeader";
+import VendorHeader from "./components/Vendor/VendorHeader";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AdminLayout from "./components/Vendor/VendorLayout";
 import AdminDashboard from "./pages/vendor/VendorDashboard";
@@ -22,13 +22,14 @@ import VendorLayout from "./components/Vendor/VendorLayout";
 import VendorOnBoarding from "./pages/vendor/VendorOnboarding";
 import CompleteProfile from "./pages/auth/CompleteProfile";
 import ChooseRole from "./pages/auth/ChooseRole";
+import Products from "./pages/user/Products";
 
 function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-right" />
       <Routes>
-        {/*admin routes */}
+        {/*vendor routes */}
         <Route
           path="/vendor"
           element={
@@ -44,9 +45,10 @@ function App() {
           <Route path="product/:id" element={<VendorViewProduct />} />
         </Route>
         {/* Public  routes*/}
+        <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home" element={<Home />} />
         {/* user routes */}
-        <Route path="/user/products" element={<ProductPage />} />
+        <Route path="/user/products" element={<Products />} />
         {/* auth routes */}
         <Route path="/auth" element={<AuthLayout />}>
           <Route path="login" element={<Login />} />

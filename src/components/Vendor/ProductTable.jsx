@@ -5,11 +5,12 @@ const ProductTable = ({ products, emptyMessage }) => {
       <table className="w-full min-w-[800px]">
         <thead className="bg-gray-50 border-b border-gray-200">
           <tr className="text-left text-sm uppercase tracking-wide text-gray-600">
-            <th className="px-6 py-4">Products</th>
-            <th className="px-6 py-4">District</th>
-            <th className="x-6 py-3">Category</th>
-            <th className="px-6 py-3">Price</th>
-            <th className="px-6 py-3">Actions</th>
+            <th className="p-4">Products</th>
+            <th className="p-4">Category</th>
+            <th className="p-4">Product Price</th>
+            <th className="p-4">Stocks</th>
+            <th className="p-4">Status</th>
+            <th className="p-4 ">Actions</th>
           </tr>
         </thead>
         <tbody>

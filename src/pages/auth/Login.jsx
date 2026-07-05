@@ -16,6 +16,7 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  // handle change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prev) => ({
@@ -23,7 +24,7 @@ const Login = () => {
       [name]: value,
     }));
   };
-
+  // validation
   const validate = () => {
     const err = {};
     if (!user.email.trim()) {
@@ -38,6 +39,33 @@ const Login = () => {
     }
     return err;
   };
+  //  check  business  profile  status
+  const checkBusinessStatus = async (token) => {
+    try {
+      const res = await fetch(
+        "http://localhost:8080/api/vendor/business-status",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const result = await res.json();
+
+      if (!res.ok) return false;
+
+      const status = result?.data?.businessProfileStatus;
+
+      console.log("Extracted business status:", status);
+
+      return status === true;
+    } catch (error) {
+      console.log("ERROR:", error);
+      return false;
+    }
+  };
+  // handle submit
   const handleSubmit = async (e) => {
     e.preventDefault(); // used to stop the browser’s default behavior
     const validateErrors = validate();
@@ -54,31 +82,39 @@ const Login = () => {
         },
         body: JSON.stringify(user),
       });
-
       let result;
-      try {
-        result = await response.json();
-      } catch (err) {
-        result = { message: "Something is wrong" };
-      }
+      result = await response.json();
+      console.log("LOGIN RESPONSE BODY:", result);
       if (response.ok) {
         // store JWT token
         localStorage.setItem("token", result.data.token);
         localStorage.setItem("role", result.data.role);
         localStorage.setItem("profileStatus", result.data.status);
-        toast.success(result.message);
+
         const role = result.data.role;
         const status = result?.data?.status;
-        if (
-          (role === "ROLE_VENDOR" || role === "ROLE_USER") &&
-          status === "PENDING"
-        ) {
-          toast.error("You have not completed  your  profile yet.");
+        const token = result?.data?.token;
+        const businessStatus = await checkBusinessStatus(token);
+        localStorage.setItem("businessStatus", JSON.stringify(businessStatus));
+        console.log(businessStatus);
+        if (status === "PENDING") {
+          toast.error("You  have not  completed your profile yet.");
           navigate("/auth/complete-profile");
-        } else if (role === "ROLE_VENDOR") {
-          navigate("/vendor/products");
         } else {
-          navigate("/user/products");
+          if (role === "ROLE_USER") {
+            toast.success("Login Successful");
+            navigate("/user/products");
+          } else {
+            if (businessStatus) {
+              toast.success("Login Successful");
+              navigate("/vendor/dashboard");
+
+              console.log(businessStatus);
+            } else {
+              toast.error("/Complete your  profile");
+              navigate("/auth/vendor-onboarding");
+            }
+          }
         }
 
         // reset Form

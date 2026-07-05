@@ -17,13 +17,15 @@ import CountrySelect from "../../data/CountrySelect";
 const CompleteProfile = () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
+  const businessStatus = JSON.parse(localStorage.getItem("businessStatus"));
   const navigate = useNavigate();
   const [profileData, setProfileData] = useState({
     number: "",
     city: "",
-    country: "",
+    country: null,
   });
   const fileRef = useRef(null);
+
   const [profile, setProfile] = useState(null);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -40,7 +42,11 @@ const CompleteProfile = () => {
   // hande=le skip
   const handleSkip = (e) => {
     if (role === "ROLE_VENDOR") {
-      navigate("/vendor/dashboard");
+      if (businessStatus) {
+        navigate("/vendor/dashboard");
+      } else {
+        navigate("/auth/vendor-onboarding");
+      }
     } else {
       navigate("/user/products");
     }
@@ -58,8 +64,8 @@ const CompleteProfile = () => {
     if (!profileData.city.trim()) {
       err.city = "City is required";
     }
-    if (!profileData.country.trim()) {
-      err.country == "Country is  required";
+    if (!profileData.country) {
+      err.country = "Country is  required";
     }
     if (!profile) {
       err.profile = "Profile image is required";
@@ -76,7 +82,7 @@ const CompleteProfile = () => {
       setLoading(true);
       const fData = new FormData();
       fData.append("city", profileData.city);
-      fData.append("country", profileData.country);
+      fData.append("country", profileData.country?.label || "");
       fData.append("number", profileData.number);
       if (profile) {
         fData.append("profile", profile);
@@ -84,7 +90,7 @@ const CompleteProfile = () => {
       const response = await fetch(
         "http://localhost:8080/api/complete-profile",
         {
-          method: "PUT",
+          method: "POST",
 
           headers: {
             Authorization: `Bearer ${token}`,
@@ -94,18 +100,21 @@ const CompleteProfile = () => {
       );
       const result = await response.json();
       if (response.ok) {
-        const message = result.data;
+        const message = result?.message;
         toast.success(message);
-        if (role === "ROLE_VENDOR") {
-          navigate("/auth/vendor-onboarding");
+        if (role === "ROLE_USER") {
+          navigate("/user/products");
         } else {
-          navigate("/home");
+          if (businessStatus) {
+            navigate("/vendor/dashboard");
+          } else {
+            navigate("/auth/vendor-onboarding");
+          }
         }
         setProfileData({
           number: "",
           city: "",
           country: "",
-          bio: "",
         });
         setProfile(null);
         setPreview(null);
@@ -115,9 +124,16 @@ const CompleteProfile = () => {
         setErrors({});
       } else {
         const message = result?.data?.code;
-        if (message === "USER_NOT_FOUND") toast.error("User not found");
-        if (message === "PROFILE_NOT_FOUND")
-          toast.error("Profile upload failed");
+
+        if (message === "USER_NOT_FOUND") {
+          toast.error("User not found");
+        } else if (message === "PROFILE_ALREADY_EXISTS") {
+          toast.error("Profile already exists");
+        } else if (message === "INVALID_INPUTS") {
+          toast.error("Invalid inputs");
+        } else {
+          toast.error("Server error");
+        }
       }
     } catch (error) {
       console.log(error);
@@ -218,6 +234,7 @@ const CompleteProfile = () => {
               }}
             />
           </div>
+          <p className="text-red-300 h-[16px]">{errors.country}</p>
         </div>
         {/* upload profile section */}
         <div>
@@ -274,7 +291,7 @@ const CompleteProfile = () => {
             <button
               type="button"
               onClick={handleSkip}
-              className="  bg-white/10 py-3 px-2 text-white/80  border border-white/80   cursor-pointer rounded-2xl hover:bg-white/20 transition"
+              className="  bg-white/10 py-3 px-2 text-white/80  border border-white/80   cursor-pointer rounded-2xl hover:bg-white/20 hover:scale-[1.02] transition-all duration-300"
             >
               Skip for now
             </button>

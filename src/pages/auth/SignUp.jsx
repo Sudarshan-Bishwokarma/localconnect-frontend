@@ -205,7 +205,7 @@ const SignUp = ({ role }) => {
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 transition disabled:bg-gray-400"
+            className="bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 hover:scale-[1.02] transition-all  disabled:bg-gray-400"
           >
             {loading ? "Registering..." : "Create Account"}
           </button>

@@ -5,7 +5,7 @@ import DropDown from "./DropDown";
 import { Link } from "react-router-dom";
 const UserHeader = () => {
   return (
-    <header className=" sticky top-0 flex  items-center justify-between h-[95px]  w-full   z-50 bg-white text-gray-700 px-5  shadow-sm ">
+    <header className=" sticky top-0 flex  items-center justify-between h-[90px]  w-full   z-50 bg-white text-gray-700 px-5  shadow-sm ">
       {/*logo*/}
       <div className="h-[70px] w-[150px]">
         <img src={logo} alt="logo" className="h-full w-full object-cover" />

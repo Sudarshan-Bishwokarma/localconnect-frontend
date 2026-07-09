@@ -162,7 +162,7 @@ const Login = () => {
               value={user.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              className="border  border-white/40  rounded-xl pl-10 pr-3 py-3  w-full  bg-white/90 shadow-sm  outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent  "
+              className="border  border-white/40  rounded-xl pl-10 pr-3 py-3  w-full  bg-white/90 shadow-sm  outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
             />
           </div>
 

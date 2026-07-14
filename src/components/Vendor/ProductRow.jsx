@@ -1,6 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 const ProductRow = ({ product }) => {
   const hasVariants = product.hasVariants;
+  const navigate = useNavigate();
+  const id = product.productId;
   return (
     <tr className="border-t hover:bg-slate-50 transition-all ">
       <td className="p-3">
@@ -86,10 +88,16 @@ const ProductRow = ({ product }) => {
               View
             </button>
           </Link>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-600 transition">
+          <button
+            onClick={() => navigate(`/vendor/product/edit/${id}`)}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-600 transition"
+          >
             Edit
           </button>
-          <button className="bg-red-500 text-white px-3 py-2  rounded-lg cursor-pointer hover:bg-red-600">
+          <button
+            onClick={() => navigate("/")}
+            className="bg-red-500 text-white px-3 py-2  rounded-lg cursor-pointer hover:bg-red-600"
+          >
             Delete
           </button>
         </div>

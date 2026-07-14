@@ -23,6 +23,7 @@ import VendorOnBoarding from "./pages/vendor/VendorOnboarding";
 import CompleteProfile from "./pages/auth/CompleteProfile";
 import ChooseRole from "./pages/auth/ChooseRole";
 import Products from "./pages/user/Products";
+import VendorEditProduct from "./pages/vendor/VendorProductEdit";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route path="products" element={<ProductPage />} />
           <Route path="add-product" element={<VendorProductForm />} />
           <Route path="product/:id" element={<VendorViewProduct />} />
+          <Route path="product/edit/:id" element={<VendorEditProduct />} />
         </Route>
         {/* Public  routes*/}
         <Route path="/" element={<Navigate to="/home" replace />} />

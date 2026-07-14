@@ -182,7 +182,7 @@ const ProductPage = () => {
       </div>
       {/*loading*/}
       {loading && (
-        <div className="text-center text">Loading Products......</div>
+        <div className="text-center text-center">Loading Products......</div>
       )}
       {/* error */}
       {error && <div className="text-center text-xl mt-7px">{error}</div>}
